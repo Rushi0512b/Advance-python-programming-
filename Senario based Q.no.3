@@ -1,0 +1,159 @@
+from dataclasses import dataclass
+from typing import List
+
+
+@dataclass
+class Book:
+    book_id: int
+    title: str
+    author: str
+    price: float
+
+    def category(self) -> str:
+        # You can change the premium limit if your teacher specifies one
+        return "Premium" if self.price >= 1000 else "Standard"
+
+    def display(self):
+        print(
+            f"ID: {self.book_id} | "
+            f"Title: {self.title} | "
+            f"Author: {self.author} | "
+            f"Price: ₹{self.price:.2f} | "
+            f"Category: {self.category()}"
+        )
+
+
+class Library:
+    def __init__(self):
+        self.books: List[Book] = []
+
+    def add_book(self, book: Book):
+        if any(b.book_id == book.book_id for b in self.books):
+            print("❌ Book ID already exists.")
+            return
+
+        self.books.append(book)
+        print("✅ Book added successfully.")
+
+    def remove_book(self, book_id: int):
+        for book in self.books:
+            if book.book_id == book_id:
+                self.books.remove(book)
+                print("✅ Book removed successfully.")
+                return
+
+        print("❌ Book not found.")
+
+    def search_book(self, keyword: str):
+        keyword = keyword.lower()
+
+        results = [
+            book for book in self.books
+            if keyword in book.title.lower()
+            or keyword in book.author.lower()
+        ]
+
+        if results:
+            print("\n--- Search Results ---")
+            for book in results:
+                book.display()
+        else:
+            print("❌ No book found.")
+
+    def display_all_books(self):
+        if not self.books:
+            print("❌ Library is empty.")
+            return
+
+        print("\n========== ALL BOOKS ==========")
+        for book in self.books:
+            book.display()
+
+    def display_category(self, category: str):
+        results = [
+            book for book in self.books
+            if book.category().lower() == category.lower()
+        ]
+
+        if results:
+            print(f"\n--- {category} Books ---")
+            for book in results:
+                book.display()
+        else:
+            print(f"No {category} books found.")
+
+    def total_books(self):
+        print(f"\nTotal books: {len(self.books)}")
+
+
+def get_book_details():
+    try:
+        book_id = int(input("Enter Book ID: "))
+        title = input("Enter Book Title: ").strip()
+        author = input("Enter Author Name: ").strip()
+        price = float(input("Enter Book Price: "))
+
+        if price < 0:
+            raise ValueError("Price cannot be negative.")
+
+        return Book(book_id, title, author, price)
+
+    except ValueError as e:
+        print(f"❌ Invalid input: {e}")
+        return None
+
+
+def main():
+    library = Library()
+
+    while True:
+        print("\n========== LIBRARY MANAGEMENT SYSTEM ==========")
+        print("1. Add Book")
+        print("2. Display All Books")
+        print("3. Search Book")
+        print("4. Remove Book")
+        print("5. Display Premium Books")
+        print("6. Display Standard Books")
+        print("7. Total Books")
+        print("8. Exit")
+
+        choice = input("Enter your choice: ")
+
+        if choice == "1":
+            book = get_book_details()
+            if book:
+                library.add_book(book)
+
+        elif choice == "2":
+            library.display_all_books()
+
+        elif choice == "3":
+            keyword = input("Enter title or author to search: ")
+            library.search_book(keyword)
+
+        elif choice == "4":
+            try:
+                book_id = int(input("Enter Book ID to remove: "))
+                library.remove_book(book_id)
+            except ValueError:
+                print("❌ Please enter a valid Book ID.")
+
+        elif choice == "5":
+            library.display_category("Premium")
+
+        elif choice == "6":
+            library.display_category("Standard")
+
+        elif choice == "7":
+            library.total_books()
+
+        elif choice == "8":
+            print("Thank you for using Library Management System!")
+            break
+
+        else:
+            print("❌ Invalid choice. Please try again.")
+
+
+if __name__ == "__main__":
+    main()
